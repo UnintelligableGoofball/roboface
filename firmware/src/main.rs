@@ -47,25 +47,28 @@ fn wheel(mut wheel_pos: u8, brightness: u8) -> RGB8 {
         .into()
 }
 
-fn forms() -> Vec<RGB8> {
-    let eye: Vec<RGB8> = [
+fn forms(pos: usize) -> RGB8 {
+
+    let mut data = [RGB8::default(); 56];
+    
+    let test: [RGB8; 56] = [
         0,0,0,0,0,0,0,0,
-        0,0,0,0,0,1,0,0,
-        0,0,0,0,0,0,1,0,
-        0,0,0,0,0,0,0,1,
-        0,0,0,0,0,0,1,0,
-        0,0,0,0,0,1,0,0,
+        0,0,0,1,0,0,0,0,
+        0,1,1,0,0,1,0,0,
+        0,0,1,0,0,0,0,0,
+        0,1,1,0,0,1,0,0,
+        0,0,0,1,0,0,0,0,
         0,0,0,0,0,0,0,0,
     ]
-    .iter()
     .map(|val| {
         match val {
-            0 => (0,0,0),
-            1 => (255,255,255),
-            _ => panic!("Invalid Color"),
+            0 => (0,0,0).into(),
+            1 => (255,255,255).into(),
+            _ => (0,0,0).into(),
         }
-    })
-    .collect();
+    });
+
+    test[pos]
 }
 
 #[embassy_executor::main]
@@ -83,27 +86,12 @@ async fn main(_spawner: Spawner) {
     const BRIGHTNESS: usize = 5;
     let mut data = [RGB8::default(); NUM_LEDS];
 
-    // Common neopixel pins:
-    // Thing plus: 8
-    // Adafruit Feather: 16;  Adafruit Feather+RFM95: 4
     let program = PioWs2812Program::new(&mut common);
     let mut ws2812 = PioWs2812::new(&mut common, sm0, p.DMA_CH0, p.PIN_26, &program);
 
-    // Loop forever making RGB values and pushing them out to the WS2812.
-    let mut ticker = Ticker::every(Duration::from_millis(10));
-    loop {
-        for j in 0..(256 * 5) {
-            debug!("New Colors:");
-            for i in 0..NUM_LEDS {
-                data[i] = wheel(
-                    (((i * 256) as u16 / NUM_LEDS as u16 + j as u16) & 255) as u8,
-                    BRIGHTNESS as u8,
-                );
-                debug!("R: {} G: {} B: {}", data[i].r, data[i].g, data[i].b);
-            }
-            ws2812.write(&data).await;
-
-            ticker.next().await;
-        }
+    for i in 0..56 {
+        data[i] = forms(i);
     }
+    ws2812.write(&data).await;
+    
 }
