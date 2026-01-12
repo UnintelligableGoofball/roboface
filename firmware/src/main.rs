@@ -47,29 +47,40 @@ fn wheel(mut wheel_pos: u8, brightness: u8) -> RGB8 {
         .into()
 }
 
-fn forms(pos: usize) -> RGB8 {
+fn forms(mut pos: usize, brightness: u8) -> RGB8 {
 
-    let mut data = [RGB8::default(); 56];
-    
+    let brightness: f32 = brightness as f32 / 255 as f32;
+
     let test: [RGB8; 56] = [
-        0,0,0,0,0,0,0,0,
+        1,0,0,0,0,0,0,0,
         0,0,0,1,0,0,0,0,
-        0,1,1,0,0,1,0,0,
+        0,0,1,0,0,1,1,0,
         0,0,1,0,0,0,0,0,
-        0,1,1,0,0,1,0,0,
+        0,0,1,0,0,1,1,0,
         0,0,0,1,0,0,0,0,
         0,0,0,0,0,0,0,0,
     ]
     .map(|val| {
         match val {
-            0 => (0,0,0).into(),
-            1 => (255,255,255).into(),
-            _ => (0,0,0).into(),
+            0 => [0,0,0]
+                .map(|x| (x as f32 * brightness) as u8)
+                .into(),
+            1 => [255,255,255]
+                .map(|x| (x as f32 * brightness) as u8)
+                .into(),
+            _ => [0,0,0].into(),
         }
     });
 
+    pos = if pos.div_euclid(8).rem_euclid(2) == 1 {
+        7 - pos.rem_euclid(8) + (pos / 8)*8
+    } else {
+        pos
+    };
+
     test[pos]
 }
+        
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
@@ -90,7 +101,7 @@ async fn main(_spawner: Spawner) {
     let mut ws2812 = PioWs2812::new(&mut common, sm0, p.DMA_CH0, p.PIN_26, &program);
 
     for i in 0..56 {
-        data[i] = forms(i);
+        data[i] = forms(i, BRIGHTNESS as u8);
     }
     ws2812.write(&data).await;
     
