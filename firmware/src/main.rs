@@ -51,14 +51,41 @@ fn forms(mut pos: usize, bright: u8) -> RGB8 {
 
     let brightness: f32 = bright as f32 / 255 as f32;
 
-    let test: [RGB8; 56] = [
-        9,0,0,0,0,0,0,0,
+    pos = if pos.div_euclid(8).rem_euclid(2) == 1 {
+        7 - pos.rem_euclid(8) + (pos / 8)*8
+    } else {
+        pos
+    };
+
+    let test: [RGB8; 168] = [
+        0,0,0,0,0,0,0,0, //0
+        
+        9,0,0,0,0,0,0,0, //1 | 8
         0,0,0,9,0,0,0,0,
         0,0,9,0,0,9,9,0,
         0,0,9,0,0,0,0,0,
         0,0,9,0,0,9,9,0,
         0,0,0,9,0,0,0,0,
         0,0,0,0,0,0,0,0,
+
+        0,0,0,1,0,0,0,0, //8 | 64
+        0,1,0,1,0,0,1,0,
+        0,1,0,1,0,0,1,0,
+        0,0,1,0,0,1,0,0,
+
+        0,0,1,0,0,1,0,0, //12 | 96
+        0,1,0,1,0,0,1,0,
+        0,1,0,1,0,0,1,0,
+        0,0,0,1,0,0,0,0,
+
+        0,0,0,0,9,0,0,0, //16 | 128
+        0,0,0,0,0,9,0,0,
+        0,0,0,0,0,0,9,0,
+        0,0,0,0,0,9,0,0,
+        0,0,0,0,9,0,0,0,
+
+        
+        
     ]
     .map(|val| {
         match val {
@@ -73,10 +100,10 @@ fn forms(mut pos: usize, bright: u8) -> RGB8 {
         }
     });
 
-    pos = if pos.div_euclid(8).rem_euclid(2) == 1 {
-        7 - pos.rem_euclid(8) + (pos / 8)*8
+    pos = if 80 <= pos && 160 > pos {
+        pos.rem_euclid(40) + 128
     } else {
-        pos
+        0
     };
 
     test[pos]
@@ -101,7 +128,7 @@ async fn main(_spawner: Spawner) {
     let program = PioWs2812Program::new(&mut common);
     let mut ws2812 = PioWs2812::new(&mut common, sm0, p.DMA_CH0, p.PIN_26, &program);
 
-    for i in 0..56 {
+    for i in 0..256 {
         data[i] = forms(i, BRIGHTNESS as u8);
     }
     ws2812.write(&data).await;
