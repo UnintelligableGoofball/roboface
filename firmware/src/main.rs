@@ -100,11 +100,42 @@ fn forms(mut pos: usize, bright: u8) -> RGB8 {
         }
     });
 
-    pos = if 80 <= pos && 160 > pos {
-        pos.rem_euclid(40) + 128
-    } else {
-        0
-    };
+    let offsets: [u8; 32] = [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        0,
+        0,
+        0,
+        16,
+        17,
+        18,
+        19,
+        20,
+        0,
+        0,
+        16,
+        17,
+        18,
+        19,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ];
+
+    pos = (8*offsets[pos / 8] + (pos.rem_euclid(8) as u8)) as usize;
 
     test[pos]
 }
@@ -122,7 +153,7 @@ async fn main(_spawner: Spawner) {
     // This is the number of leds in the string. Helpfully, the sparkfun thing plus and adafruit
     // feather boards for the 2040 both have one built in.
     const NUM_LEDS: usize = 256;
-    const BRIGHTNESS: usize = 5;
+    const BRIGHTNESS: usize = 255;
     let mut data = [RGB8::default(); NUM_LEDS];
 
     let program = PioWs2812Program::new(&mut common);
