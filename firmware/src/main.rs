@@ -47,17 +47,17 @@ fn wheel(mut wheel_pos: u8, brightness: u8) -> RGB8 {
         .into()
 }
 
-fn forms(mut pos: usize, brightness: u8) -> RGB8 {
+fn forms(mut pos: usize, bright: u8) -> RGB8 {
 
-    let brightness: f32 = brightness as f32 / 255 as f32;
+    let brightness: f32 = bright as f32 / 255 as f32;
 
     let test: [RGB8; 56] = [
-        1,0,0,0,0,0,0,0,
-        0,0,0,1,0,0,0,0,
-        0,0,1,0,0,1,1,0,
-        0,0,1,0,0,0,0,0,
-        0,0,1,0,0,1,1,0,
-        0,0,0,1,0,0,0,0,
+        9,0,0,0,0,0,0,0,
+        0,0,0,9,0,0,0,0,
+        0,0,9,0,0,9,9,0,
+        0,0,9,0,0,0,0,0,
+        0,0,9,0,0,9,9,0,
+        0,0,0,9,0,0,0,0,
         0,0,0,0,0,0,0,0,
     ]
     .map(|val| {
@@ -68,6 +68,7 @@ fn forms(mut pos: usize, brightness: u8) -> RGB8 {
             1 => [255,255,255]
                 .map(|x| (x as f32 * brightness) as u8)
                 .into(),
+            9 => wheel(pos as u8, bright),
             _ => [0,0,0].into(),
         }
     });
