@@ -47,17 +47,17 @@ fn wheel(mut wheel_pos: u8, brightness: u8) -> RGB8 {
         .into()
 }
 
-fn forms(mut pos: usize, bright: u8) -> RGB8 {
+fn forms(mut pos: usize, pattern: char, bright: u8) -> RGB8 {
 
     let brightness: f32 = bright as f32 / 255 as f32;
 
     pos = if pos.div_euclid(8).rem_euclid(2) == 1 {
-        7 - pos.rem_euclid(8) + (pos / 8)*8
+        7 - pos.rem_euclid(8) + (&pos / 8)*8
     } else {
         pos
     };
 
-    let test: [RGB8; 168] = [
+    let test: [RGB8; 136] = [
         0,0,0,0,0,0,0,0, //0
         
         9,0,0,0,0,0,0,0, //1 | 8
@@ -73,19 +73,11 @@ fn forms(mut pos: usize, bright: u8) -> RGB8 {
         0,1,0,1,0,0,1,0,
         0,0,1,0,0,1,0,0,
 
-        0,0,1,0,0,1,0,0, //12 | 96
-        0,1,0,1,0,0,1,0,
-        0,1,0,1,0,0,1,0,
-        0,0,0,1,0,0,0,0,
-
-        0,0,9,0,0,0,0,0, //16 | 128
+        0,0,9,0,0,0,0,0, //12 | 96
         0,9,0,0,0,0,0,0,
         9,0,0,0,0,0,0,0,
         0,9,0,0,0,0,0,0,
         0,0,9,0,0,0,0,0,
-
-        
-        
     ]
     .map(|val| {
         match val {
@@ -100,7 +92,7 @@ fn forms(mut pos: usize, bright: u8) -> RGB8 {
         }
     });
 
-    let offsets: [u8; 32] = [
+    let cuteeyes: [u8; 32] = [
         0,
         0,
         0,
@@ -135,6 +127,47 @@ fn forms(mut pos: usize, bright: u8) -> RGB8 {
         0,
     ];
 
+    let whiskers: [u8; 32] = [
+        0,
+        0,
+        0,
+        0,
+        8,
+        9,
+        10,
+        11,
+        0,
+        0,
+        16,
+        17,
+        18,
+        19,
+        20,
+        0,
+        0,
+        16,
+        17,
+        18,
+        19,
+        20,
+        0,
+        0,
+        11,
+        10,
+        9,
+        8,
+        0,
+        0,
+        0,
+        0,
+    ];
+
+    let offsets = if pattern == 'b' {
+        whiskers
+    } else {
+        cuteeyes
+    };
+    
     pos = (8*offsets[pos / 8] + (pos.rem_euclid(8) as u8)) as usize;
 
     test[pos]
@@ -160,7 +193,7 @@ async fn main(_spawner: Spawner) {
     let mut ws2812 = PioWs2812::new(&mut common, sm0, p.DMA_CH0, p.PIN_26, &program);
 
     for i in 0..256 {
-        data[i] = forms(i, BRIGHTNESS as u8);
+        data[i] = forms(i, 'b', BRIGHTNESS as u8);
     }
     ws2812.write(&data).await;
     
