@@ -1,14 +1,6 @@
 #![no_std]
 #![no_main]
 
-// THA PLANo
-// ITERATorS of SECTIONS
-// WHISKER
-// Eye
-// MOUTH
-// THEn push them to the screen in order depending
-// each will have to be hardcoded with rgb8 thingies
-
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_rp::bind_interrupts;
