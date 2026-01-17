@@ -1,14 +1,6 @@
 #![no_std]
 #![no_main]
 
-// THA PLANo
-// ITERATorS of SECTIONS
-// WHISKER
-// Eye
-// MOUTH
-// THEn push them to the screen in order depending
-// each will have to be hardcoded with rgb8 thingies
-
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_rp::bind_interrupts;
@@ -57,7 +49,7 @@ fn forms(mut pos: usize, pattern: char, bright: u8) -> RGB8 {
         pos
     };
 
-    let test: [RGB8; 144] = [
+    let test: [RGB8; 184] = [
         0,0,0,0,0,0,0,0, //0
         
         9,0,0,0,0,0,0,0, //1 | 8
@@ -79,6 +71,12 @@ fn forms(mut pos: usize, pattern: char, bright: u8) -> RGB8 {
         9,0,0,0,0,0,0,0,
         0,9,0,0,0,0,0,0,
         0,0,9,0,0,0,0,0,
+
+        0,0,0,9,0,0,0,9, //19
+        0,0,0,0,9,0,9,0,
+        0,0,0,0,0,9,0,0,
+        0,0,0,0,9,0,9,0,
+        0,0,0,9,0,0,0,9,
     ]
     .map(|val| {
         match val {
@@ -163,8 +161,45 @@ fn forms(mut pos: usize, pattern: char, bright: u8) -> RGB8 {
         0,
     ];
 
+    let dead: [u8; 32] = [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        19,
+        20,
+        21,
+        22,
+        23,
+        0,
+        0,
+        19,
+        20,
+        21,
+        22,
+        23,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ];
+
     let offsets = if pattern == 'b' {
         whiskers
+    } else if pattern == 'c' {
+        dead
     } else {
         cuteeyes
     };
